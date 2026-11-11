@@ -1,0 +1,11 @@
+# Direct runtime dependencies. Edit this file, then run `make lock` to
+# regenerate the fully pinned requirements.txt.
+Django>=5.2,<5.3
+djangorestframework
+django-filter
+dj-database-url
+whitenoise
+Pillow
+filetype
+fpdf2
+gunicorn
