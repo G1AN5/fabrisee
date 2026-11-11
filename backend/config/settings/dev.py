@@ -1,9 +1,11 @@
 """Development settings (local machine, GitHub Codespaces, Claude Code cloud sessions)."""
 
+import os
+
 from config.env import env_bool, env_list, env_str
 
 from .base import *  # noqa: F403
-from .base import INSTALLED_APPS, REST_FRAMEWORK
+from .base import FRONTEND_URL, INSTALLED_APPS, REST_FRAMEWORK
 
 DEBUG = env_bool("DEBUG", True)
 SECRET_KEY = env_str("SECRET_KEY", "dev-only-insecure-key-do-not-use-in-production")
@@ -14,6 +16,13 @@ CSRF_TRUSTED_ORIGINS = env_list(
     "CSRF_TRUSTED_ORIGINS",
     ["http://localhost:5173", "http://127.0.0.1:5173", "https://*.app.github.dev"],
 )
+
+# In GitHub Codespaces the app is opened through a forwarded HTTPS address, so links in
+# emails must point there instead of localhost.
+_codespace = os.environ.get("CODESPACE_NAME")
+if _codespace and FRONTEND_URL in ("http://localhost:5173", "http://127.0.0.1:5173"):
+    _domain = os.environ.get("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN", "app.github.dev")
+    FRONTEND_URL = f"https://{_codespace}-5173.{_domain}"
 
 ALLOW_DEMO_SEED = env_bool("ALLOW_DEMO_SEED", True)
 EMAIL_LOG_TO_CONSOLE = True
