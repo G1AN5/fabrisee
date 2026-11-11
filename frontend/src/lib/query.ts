@@ -24,3 +24,27 @@ export function createQueryClient() {
 }
 
 export const queryClient = createQueryClient();
+
+/** Query keys, one family per resource. Invalidate the family after a mutation. */
+export const queryKeys = {
+  me: ["auth", "me"] as const,
+  privacyNotice: ["auth", "privacy-notice"] as const,
+  demoAccounts: ["demo", "accounts"] as const,
+  health: ["health"] as const,
+  dashboard: ["dashboard"] as const,
+  approvals: ["approvals", "pending"] as const,
+  clients: ["clients"] as const,
+  projects: {
+    all: ["projects"] as const,
+    list: (params: object) => ["projects", "list", params] as const,
+    detail: (id: number) => ["projects", "detail", id] as const,
+    timeline: (id: number) => ["projects", "detail", id, "timeline"] as const,
+    quotations: (id: number) => ["projects", "detail", id, "quotations"] as const,
+    revisions: (id: number) => ["projects", "detail", id, "revisions"] as const,
+    documents: (id: number) => ["projects", "detail", id, "documents"] as const,
+  },
+  notifications: {
+    all: ["notifications"] as const,
+    list: (params: object) => ["notifications", "list", params] as const,
+  },
+};
