@@ -1,0 +1,285 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * FabriSee design tokens (build guide, section 11). "Blueprint and workshop": calm,
+ * precise, crafted. Light theme first; a dark theme can redefine these under `.dark`.
+ * Contrast ratios are noted where they matter for WCAG 2.1 AA.
+ */
+:root {
+  /* Surfaces and text */
+  --background: #f8fafc; /* page */
+  --foreground: #0f172a; /* body text, 17:1 on page */
+  --card: #ffffff; /* cards, dialogs, tables */
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b; /* secondary text, 4.6:1 on page, 4.8:1 on white */
+  --border: #e2e8f0; /* card and table borders (decorative) */
+  --input: #8291a5; /* form control borders, 3.2:1 */
+  --ring: #2563eb; /* focus ring, 2 px with 2 px offset */
+
+  /* Brand and actions */
+  --primary: #1e40af; /* blueprint blue, 8.7:1 with white text */
+  --primary-foreground: #ffffff;
+  --primary-hover: #1e3a8a;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --accent: #f1f5f9; /* hover background of menu items and quiet buttons */
+  --accent-foreground: #0f172a;
+  --link: #1d4ed8; /* 6.7:1 */
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --accent-brand: #c2410c; /* workshop orange: logo mark and small brand accents only */
+  --accent-brand-inverse: #fb923c; /* the mark on dark surfaces */
+
+  /* Staff sidebar (dark slate) */
+  --sidebar: #0f172a;
+  --sidebar-foreground: #cbd5e1; /* 12:1 */
+  --sidebar-muted: #94a3b8;
+  --sidebar-active: #1e293b;
+  --sidebar-active-foreground: #ffffff;
+  --sidebar-border: #1e293b;
+  --sidebar-indicator: #3b82f6; /* 3 px bar of the active item */
+
+  /* Status badges: text on tint, all at least 4.5:1 */
+  --status-pending: #b45309;
+  --status-pending-bg: #fffbeb;
+  --status-pending-border: #fde68a;
+  --status-approved: #15803d;
+  --status-approved-bg: #f0fdf4;
+  --status-approved-border: #bbf7d0;
+  --status-changes: #b91c1c;
+  --status-changes-bg: #fef2f2;
+  --status-changes-border: #fecaca;
+  --status-sent: #1d4ed8;
+  --status-sent-bg: #eff6ff;
+  --status-sent-border: #bfdbfe;
+  --status-neutral: #475569;
+  --status-neutral-bg: #f1f5f9;
+  --status-neutral-border: #e2e8f0;
+
+  /* Stage chips and tracker: always shown with the stage name, never color alone */
+  --stage-request: #475569;
+  --stage-request-bg: #f1f5f9;
+  --stage-request-border: #cbd5e1;
+  --stage-design: #4338ca;
+  --stage-design-bg: #eef2ff;
+  --stage-design-border: #c7d2fe;
+  --stage-production: #c2410c;
+  --stage-production-bg: #fff7ed;
+  --stage-production-border: #fed7aa;
+  --stage-delivery: #0e7490;
+  --stage-delivery-bg: #ecfeff;
+  --stage-delivery-border: #a5f3fc;
+  --stage-turnover: #15803d;
+  --stage-turnover-bg: #f0fdf4;
+  --stage-turnover-border: #bbf7d0;
+
+  /* Control height: 36 px with a mouse, 44 px on touch screens and in the client portal */
+  --control-h: 2.25rem;
+  --control-h-sm: 2rem;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --control-h: 2.75rem;
+    --control-h-sm: 2.5rem;
+  }
+}
+
+/*
+ * Type scale: 12, 14, 16, 18, 20, 24, 30 px. The staff workspace reads at 14 px
+ * (`text-sm` is body text). The client portal reads at 16 px: every step is one size
+ * larger there, so shared components scale without separate styles. The layouts set
+ * `data-ui` on <html>, which also covers dialogs and menus rendered outside the layout.
+ */
+@theme {
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.4;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.25;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.25;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 1.25;
+}
+
+html[data-ui="portal"] {
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.875rem;
+  --control-h: 2.75rem;
+  --control-h-sm: 2.5rem;
+}
+
+@theme inline {
+  --font-sans:
+    "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-link: var(--link);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-brand: var(--accent-brand);
+  --color-brand-inverse: var(--accent-brand-inverse);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-active-foreground: var(--sidebar-active-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-indicator: var(--sidebar-indicator);
+
+  --color-status-pending: var(--status-pending);
+  --color-status-pending-bg: var(--status-pending-bg);
+  --color-status-pending-border: var(--status-pending-border);
+  --color-status-approved: var(--status-approved);
+  --color-status-approved-bg: var(--status-approved-bg);
+  --color-status-approved-border: var(--status-approved-border);
+  --color-status-changes: var(--status-changes);
+  --color-status-changes-bg: var(--status-changes-bg);
+  --color-status-changes-border: var(--status-changes-border);
+  --color-status-sent: var(--status-sent);
+  --color-status-sent-bg: var(--status-sent-bg);
+  --color-status-sent-border: var(--status-sent-border);
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-bg: var(--status-neutral-bg);
+  --color-status-neutral-border: var(--status-neutral-border);
+
+  --color-stage-request: var(--stage-request);
+  --color-stage-request-bg: var(--stage-request-bg);
+  --color-stage-request-border: var(--stage-request-border);
+  --color-stage-design: var(--stage-design);
+  --color-stage-design-bg: var(--stage-design-bg);
+  --color-stage-design-border: var(--stage-design-border);
+  --color-stage-production: var(--stage-production);
+  --color-stage-production-bg: var(--stage-production-bg);
+  --color-stage-production-border: var(--stage-production-border);
+  --color-stage-delivery: var(--stage-delivery);
+  --color-stage-delivery-bg: var(--stage-delivery-bg);
+  --color-stage-delivery-border: var(--stage-delivery-border);
+  --color-stage-turnover: var(--stage-turnover);
+  --color-stage-turnover-bg: var(--stage-turnover-bg);
+  --color-stage-turnover-border: var(--stage-turnover-border);
+
+  /* Radius: 8 px on controls, 12 px on cards and dialogs, full on chips. */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    font-feature-settings: "cv11", "calt";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  /* One focus style everywhere: a 2 px ring with a 2 px offset. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+}
+
+/* The faint drawing grid of the sign-in panel. */
+@utility blueprint-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.09) 1px, transparent 1px),
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size:
+    120px 120px,
+    120px 120px,
+    24px 24px,
+    24px 24px;
+  background-position: -1px -1px;
+}
+
+/* A neutral canvas for design files (renders are shown large on it). */
+@utility design-canvas {
+  background-color: #eef2f6;
+  background-image: radial-gradient(rgb(100 116 139 / 0.18) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* 150 to 200 ms ease-out everywhere; no motion for people who ask for less. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
