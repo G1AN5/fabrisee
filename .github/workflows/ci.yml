@@ -82,33 +82,53 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies, migrate, and load the demo data
         run: make setup
-      - name: Configure apt retries for transient runner network failures
-        run: |
-          sudo tee /etc/apt/apt.conf.d/80-retries >/dev/null <<'EOF'
-          Acquire::Retries "3";
-          Acquire::http::Timeout "30";
-          Acquire::https::Timeout "30";
-          EOF
-      - name: Install the Playwright browser and system dependencies
+      # Only the browser is downloaded here. `playwright install --with-deps` also runs apt
+      # to add system packages, and that step failed whenever the runner could not resolve
+      # the Ubuntu package mirrors ("Temporary failure resolving 'archive.ubuntu.com'").
+      # The runner image already has every library Chromium needs; the packages apt still
+      # wanted were extra fonts, which FabriSee does not use (Inter is self-hosted).
+      - name: Install the Playwright browser
         working-directory: frontend
+        timeout-minutes: 8
         run: |
           for attempt in 1 2 3; do
-            echo "Playwright/apt install attempt ${attempt}/3"
-            if npx playwright install --with-deps chromium; then
+            echo "Browser download attempt ${attempt}/3"
+            if npx playwright install chromium; then
               exit 0
             fi
             if [ "$attempt" -lt 3 ]; then
               sleep $((attempt * 15))
             fi
           done
-          echo "Playwright browser installation failed after 3 attempts." >&2
+          echo "The Playwright browser could not be downloaded after 3 attempts." >&2
           exit 1
+      # Safety net for a future runner image that lacks a library: install the system
+      # dependencies (apt) only if Chromium cannot start without them.
+      - name: Check that the browser starts
+        working-directory: frontend
+        timeout-minutes: 10
+        run: |
+          check_browser() {
+            node --input-type=module -e "
+              import { chromium } from '@playwright/test';
+              const browser = await chromium.launch();
+              const page = await browser.newPage();
+              await page.setContent('<p>ok</p>');
+              await browser.close();
+              console.log('Chromium starts.');
+            "
+          }
+          if ! check_browser; then
+            echo "Chromium did not start; installing its system dependencies."
+            npx playwright install-deps chromium
+            check_browser
+          fi
       - name: Run the specs and capture screenshots (starts both servers)
         working-directory: frontend
         run: npx playwright test
       - name: Upload the Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report
           path: frontend/playwright-report/
@@ -116,7 +136,7 @@ jobs:
           retention-days: 14
       - name: Upload the screenshots
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: screenshots
           path: docs/screenshots/
