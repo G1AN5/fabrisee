@@ -33,6 +33,9 @@ frontend/playwright-report/
 frontend/blob-report/
 frontend/playwright/.cache/
 
+# Claude Code: personal overrides stay local; .claude/settings.json is shared
+.claude/settings.local.json
+
 # Editors and operating systems
 .idea/
 .vscode/*

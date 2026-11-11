@@ -144,6 +144,12 @@ The group does not need a local setup. Each Claude Code session works on its own
 pull request; review it on GitHub, merge it, and try it in a codespace. The session prompts are in
 section 18 of the build guide. `CLAUDE.md` holds the standing instructions for Claude Code.
 
+`.claude/settings.json` pre-approves the commands Claude Code needs for this project (file edits,
+`make`, `git`, `npm`, Python tools, and the GitHub pull request tools), so a session can finish a
+milestone without stopping for permission prompts. Merging a pull request is never pre-approved: the
+group reviews and merges. For fully unattended runs, also choose **Auto** in the mode menu next to the
+prompt box when starting a session.
+
 ## Scope
 
 In scope: client and project records, project requests, quotation management (versions and
