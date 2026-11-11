@@ -82,9 +82,27 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies, migrate, and load the demo data
         run: make setup
-      - name: Install the Playwright browser
+      - name: Configure apt retries for transient runner network failures
+        run: |
+          sudo tee /etc/apt/apt.conf.d/80-retries >/dev/null <<'EOF'
+          Acquire::Retries "3";
+          Acquire::http::Timeout "30";
+          Acquire::https::Timeout "30";
+          EOF
+      - name: Install the Playwright browser and system dependencies
         working-directory: frontend
-        run: npx playwright install --with-deps chromium
+        run: |
+          for attempt in 1 2 3; do
+            echo "Playwright/apt install attempt ${attempt}/3"
+            if npx playwright install --with-deps chromium; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep $((attempt * 15))
+            fi
+          done
+          echo "Playwright browser installation failed after 3 attempts." >&2
+          exit 1
       - name: Run the specs and capture screenshots (starts both servers)
         working-directory: frontend
         run: npx playwright test
