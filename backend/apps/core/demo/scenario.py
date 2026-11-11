@@ -686,16 +686,18 @@ class ProjectStory:
             item.last_reminded_at = at
             item.save()
             names = [user.full_name for user in decision.pending_approvers]
+            # "quotation v1" or "design R2", as it reads inside a sentence.
+            item_text = decision.label[0].lower() + decision.label[1:]
             log_activity(
                 action=ActivityAction.REMINDER_SENT,
                 project=self.project,
-                details={"item": decision.label.lower(), "recipients": names},
+                details={"item": item_text, "recipients": names},
                 at=at,
             )
             log_activity(
                 action=ActivityAction.OVERDUE_ALERT_SENT,
                 project=self.project,
-                details={"item": decision.label.lower(), "recipient": self.manager.full_name},
+                details={"item": item_text, "recipient": self.manager.full_name},
                 at=at,
             )
             section = "quotation" if decision.kind == "quotation" else "design"

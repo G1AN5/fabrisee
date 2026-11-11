@@ -3,6 +3,7 @@ from django.db import connection
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
+from rest_framework.exceptions import NotFound
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -36,6 +37,49 @@ class HealthView(APIView):
             },
             status=200 if healthy else 503,
         )
+
+
+class DemoAccountsView(APIView):
+    """`GET /api/demo/accounts/`: the demo accounts, for the sign-in page.
+
+    Exists only in development while the demo data is loaded (`DEBUG` and
+    `ALLOW_DEMO_SEED`). Everywhere else it answers 404, like an unknown path.
+    """
+
+    authentication_classes: list = []
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from apps.accounts.models import User
+        from apps.core.demo.accounts import DEMO_PASSWORD, USERS
+
+        if not (settings.DEBUG and settings.ALLOW_DEMO_SEED):
+            raise NotFound("This API endpoint does not exist.")
+        existing = {
+            user.email: user
+            for user in User.objects.filter(
+                email__in=[account.email for account in USERS], is_active=True
+            ).select_related("client")
+        }
+        if not existing:
+            raise NotFound("This API endpoint does not exist.")
+        accounts = [
+            {
+                "email": account.email,
+                "full_name": account.full_name,
+                "role": account.role,
+                "role_label": existing[account.email].get_role_display(),
+                "company": (
+                    existing[account.email].client.company_name
+                    if existing[account.email].client_id
+                    else None
+                ),
+                "note": account.note,
+            }
+            for account in USERS
+            if account.email in existing
+        ]
+        return Response({"password": DEMO_PASSWORD, "accounts": accounts})
 
 
 def api_not_found(request, *args, **kwargs):

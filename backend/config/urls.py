@@ -12,6 +12,9 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("apps.core.urls")),
     path("api/auth/", include("apps.accounts.urls")),
+    path("api/", include("apps.projects.urls")),
+    path("api/", include("apps.clients.urls")),
+    path("api/", include("apps.notifications.urls")),
 ]
 
 if "drf_spectacular" in settings.INSTALLED_APPS:
