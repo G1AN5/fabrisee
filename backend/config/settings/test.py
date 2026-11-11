@@ -11,7 +11,8 @@ CSRF_TRUSTED_ORIGINS = []
 DATABASES = {"default": build_database_config("sqlite://:memory:")}
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
-EMAIL_BACKEND = "apps.notifications.backends.DatabaseEmailBackend"
+# Django's test runner replaces EMAIL_BACKEND with the in-memory backend. Tests of the
+# development backend set `apps.notifications.backends.DatabaseEmailBackend` themselves.
 EMAIL_LOG_TO_CONSOLE = False
 DEFAULT_FROM_EMAIL = "FabriSee <no-reply@fabrisee.local>"
 FRONTEND_URL = "http://localhost:5173"

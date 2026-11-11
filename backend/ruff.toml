@@ -18,6 +18,9 @@ select = [
 ]
 ignore = [
   "RUF012", # Django Meta, admin and serializer class attributes are intentionally mutable
+  "RUF001", # typographic characters are intended in user-facing text (×, ₱, “ ”)
+  "RUF002",
+  "RUF003",
 ]
 
 [lint.isort]
