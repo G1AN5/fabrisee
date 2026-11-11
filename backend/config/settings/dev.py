@@ -31,6 +31,9 @@ EMAIL_LOG_TO_CONSOLE = True
 INSTALLED_APPS = [*INSTALLED_APPS, "drf_spectacular"]
 REST_FRAMEWORK = {
     **REST_FRAMEWORK,
+    # Everybody shares one IP address behind the Vite proxy, and demos and end-to-end
+    # tests switch accounts often, so development allows many sign-ins per minute.
+    "DEFAULT_THROTTLE_RATES": {"login": "300/min", "password_reset": "60/min"},
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
