@@ -81,7 +81,7 @@ function ProjectRow({ project }: { project: ProjectCardData }) {
 function NeedsAttention({ data }: { data: Dashboard }) {
   const nothing = data.pending_decisions.length === 0 && data.overdue_projects.length === 0;
   return (
-    <Card className="lg:col-span-2">
+    <Card>
       <CardHeader>
         <CardTitle>Needs attention</CardTitle>
         <CardDescription>
@@ -130,34 +130,14 @@ function NeedsAttention({ data }: { data: Dashboard }) {
   );
 }
 
-function SideColumn({ data }: { data: Dashboard }) {
-  const { can } = useAuth();
-  if (can("view_activity_log")) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {data.recent_activity.length === 0 ? (
-            <p className="py-6 text-center text-muted-foreground">No activity yet.</p>
-          ) : (
-            <ActivityFeed
-              entries={data.recent_activity}
-              projectHref={(id) => `/app/projects/${id}`}
-            />
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
+function DueSoon({ data }: { data: Dashboard }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Due in the next 7 days</CardTitle>
       </CardHeader>
       {data.due_soon.length === 0 ? (
-        <p className="px-5 pb-6 text-center text-muted-foreground">
+        <p className="px-5 pb-6 text-muted-foreground sm:px-6">
           No project is due in the next 7 days.
         </p>
       ) : (
@@ -167,6 +147,26 @@ function SideColumn({ data }: { data: Dashboard }) {
           ))}
         </ul>
       )}
+    </Card>
+  );
+}
+
+function RecentActivity({ data }: { data: Dashboard }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent activity</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {data.recent_activity.length === 0 ? (
+          <p className="py-6 text-center text-muted-foreground">No activity yet.</p>
+        ) : (
+          <ActivityFeed
+            entries={data.recent_activity}
+            projectHref={(id) => `/app/projects/${id}`}
+          />
+        )}
+      </CardContent>
     </Card>
   );
 }
@@ -260,6 +260,7 @@ export function DashboardPage() {
   const dashboard = useDashboard();
   const firstName = user.full_name.split(" ")[0];
   const data = dashboard.data;
+  const showActivity = can("view_activity_log");
 
   return (
     <>
@@ -316,9 +317,14 @@ export function DashboardPage() {
               to="/app/projects?due_within=7"
             />
           </section>
-          <div className="grid gap-6 lg:grid-cols-3">
-            <NeedsAttention data={data} />
-            <SideColumn data={data} />
+          {/* The activity feed is for administrators and project managers; other roles
+              see what is due soon next to what needs attention. */}
+          <div className="grid items-start gap-6 lg:grid-cols-3">
+            <div className="flex flex-col gap-6 lg:col-span-2">
+              <NeedsAttention data={data} />
+              {showActivity && <DueSoon data={data} />}
+            </div>
+            {showActivity ? <RecentActivity data={data} /> : <DueSoon data={data} />}
           </div>
           {data.kpis.active_projects === 0 && data.stage_counts.turnover === 0 ? (
             <Card>

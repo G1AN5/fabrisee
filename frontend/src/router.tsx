@@ -6,6 +6,10 @@ import { HomeRedirect, RequireArea, RequirePermission } from "@/features/auth/gu
 import { LoginPage } from "@/features/auth/LoginPage";
 import { ApprovalsPage } from "@/features/dashboard/ApprovalsPage";
 import { DashboardPage } from "@/features/dashboard/DashboardPage";
+import { PortalHomePage } from "@/features/dashboard/PortalHomePage";
+import { NotificationsPage } from "@/features/notifications/NotificationsPage";
+import { PortalProjectPage } from "@/features/projects/PortalProjectPage";
+import { ProjectDetailPage } from "@/features/projects/ProjectDetailPage";
 import { ProjectsListPage } from "@/features/projects/ProjectsListPage";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { PortalLayout } from "@/layouts/PortalLayout";
@@ -33,6 +37,9 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <DashboardPage /> },
           { path: "projects", element: <ProjectsListPage /> },
+          { path: "projects/:projectId", element: <ProjectDetailPage /> },
+          { path: "projects/:projectId/:tab", element: <ProjectDetailPage /> },
+          { path: "notifications", element: <NotificationsPage /> },
           {
             path: "approvals",
             element: (
@@ -103,6 +110,10 @@ export const router = createBrowserRouter([
           </RequireArea>
         ),
         children: [
+          { index: true, element: <PortalHomePage /> },
+          { path: "projects/:projectId", element: <PortalProjectPage /> },
+          { path: "projects/:projectId/:tab", element: <PortalProjectPage /> },
+          { path: "notifications", element: <NotificationsPage /> },
           {
             path: "requests/new",
             element: (

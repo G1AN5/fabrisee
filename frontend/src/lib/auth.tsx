@@ -22,14 +22,10 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** The signed-in user, or null when nobody is signed in (the API answers 401). */
+/** The signed-in user, or null when nobody is signed in. */
 async function fetchCurrentUser(signal?: AbortSignal): Promise<CurrentUser | null> {
-  try {
-    return await api.get<CurrentUser>("/auth/me/", { signal });
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) return null;
-    throw error;
-  }
+  const session = await api.get<{ user: CurrentUser | null }>("/auth/session/", { signal });
+  return session.user;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

@@ -98,6 +98,24 @@ class MeView(APIView):
         return Response(CurrentUserSerializer(request.user).data)
 
 
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class SessionView(APIView):
+    """`GET /api/auth/session/`: who is signed in, if anybody.
+
+    The React app asks this when it starts. Unlike `/api/auth/me/` it answers 200 for a
+    visitor (`{"user": null}`), so the browser console stays free of a 401 error on the
+    sign-in page. It also sets the CSRF cookie for the sign-in request that follows.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"user": None})
+        return Response({"user": CurrentUserSerializer(user).data})
+
+
 class PrivacyNoticeView(APIView):
     """`GET /api/auth/privacy-notice/`: the wording of the privacy notice."""
 

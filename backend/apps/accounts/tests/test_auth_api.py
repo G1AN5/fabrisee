@@ -38,6 +38,22 @@ def test_me_requires_a_session_and_sets_the_csrf_cookie(browser):
     assert "csrftoken" in response.cookies
 
 
+def test_session_answers_200_for_visitors_and_for_signed_in_users(browser):
+    visitor = browser.get("/api/auth/session/")
+
+    assert visitor.status_code == 200
+    assert visitor.json() == {"user": None}
+    assert "csrftoken" in visitor.cookies
+
+    user = StaffFactory()
+    sign_in(browser, user.email)
+    signed_in = browser.get("/api/auth/session/").json()
+
+    assert signed_in["user"]["email"] == user.email
+    assert signed_in["user"]["home_path"] == "/app"
+    assert signed_in["user"]["permissions"]["view_dashboard"] is True
+
+
 @pytest.mark.parametrize(
     ("role", "home_path"),
     [

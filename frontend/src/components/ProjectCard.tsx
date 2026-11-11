@@ -49,7 +49,7 @@ export function ProjectCard({
             {formatShortDate(project.target_date)}
           </span>
         </span>
-        <span className="mt-1 block truncate font-medium text-foreground" title={project.title}>
+        <span className="mt-1 line-clamp-2 font-medium text-foreground" title={project.title}>
           {project.title}
         </span>
         {!hideClient && (

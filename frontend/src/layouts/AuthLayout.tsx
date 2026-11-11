@@ -25,7 +25,7 @@ function BlueprintDrawing() {
     <svg
       viewBox="0 0 520 300"
       aria-hidden="true"
-      className="pointer-events-none absolute -right-16 bottom-10 w-[34rem] max-w-none text-white/25"
+      className="h-auto w-full max-w-md text-white/30"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
@@ -47,9 +47,11 @@ export function AuthLayout() {
   useUiScale("auth");
   return (
     <div className="grid min-h-dvh bg-card lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-      <aside className="blueprint-grid relative hidden flex-col justify-between overflow-hidden bg-primary p-12 text-white lg:flex">
+      <aside className="blueprint-grid relative hidden flex-col overflow-hidden bg-primary p-12 text-white lg:flex">
         <AppLogo variant="inverse" size="lg" />
-        <BlueprintDrawing />
+        <div className="flex min-h-0 flex-1 items-center justify-end py-8">
+          <BlueprintDrawing />
+        </div>
         <div className="relative max-w-md">
           <p className="text-3xl leading-tight font-semibold tracking-tight">
             Client coordination for custom fabrication projects
@@ -65,7 +67,7 @@ export function AuthLayout() {
             ))}
           </ul>
         </div>
-        <p className="relative text-sm text-blue-200">
+        <p className="relative mt-10 text-sm text-blue-200">
           Request · Design · Production · Delivery and Installation · Turnover
         </p>
       </aside>
