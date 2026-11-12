@@ -21,6 +21,11 @@ export interface Column<T> {
   /** Classes for the cells of the column (width, truncation, alignment). */
   className?: string;
   headerClassName?: string;
+  /**
+   * Size of the placeholder shown while the rows load. Give it the size of the real content,
+   * so the table does not move when the data arrives.
+   */
+  skeletonClassName?: string;
 }
 
 interface DataTableProps<T> {
@@ -153,7 +158,9 @@ export function DataTable<T>({
                   <TableRow key={index}>
                     {columns.map((column) => (
                       <TableCell key={column.key} className={column.className}>
-                        <Skeleton className="h-5 w-full max-w-40 min-w-16" />
+                        <Skeleton
+                          className={column.skeletonClassName ?? "h-5 w-full max-w-40 min-w-16"}
+                        />
                       </TableCell>
                     ))}
                   </TableRow>

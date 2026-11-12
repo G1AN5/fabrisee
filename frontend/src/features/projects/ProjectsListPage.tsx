@@ -57,6 +57,7 @@ const COLUMNS: Column<ProjectCardData>[] = [
   {
     key: "project",
     header: "Project",
+    skeletonClassName: "h-10 w-56 2xl:w-72",
     cell: (project) => (
       <div className="w-56 2xl:w-72">
         <Link
@@ -74,6 +75,7 @@ const COLUMNS: Column<ProjectCardData>[] = [
   {
     key: "client",
     header: "Client and type",
+    skeletonClassName: "h-10 w-40 2xl:w-48",
     cell: (project) => (
       <div className="w-40 2xl:w-48">
         <span className="block truncate text-foreground" title={project.client.company_name}>
@@ -88,6 +90,7 @@ const COLUMNS: Column<ProjectCardData>[] = [
   {
     key: "stage",
     header: "Stage",
+    skeletonClassName: "h-6 w-24 rounded-full",
     cell: (project) => (
       <span className="flex flex-col items-start gap-1">
         <StageChip stage={project.stage} />
@@ -102,6 +105,7 @@ const COLUMNS: Column<ProjectCardData>[] = [
     header: "Next step",
     className: "w-full",
     headerClassName: "w-full",
+    skeletonClassName: "h-5 w-full max-w-64 min-w-44",
     cell: (project) => (
       <span
         title={project.next_step.text}
@@ -119,6 +123,7 @@ const COLUMNS: Column<ProjectCardData>[] = [
     header: "Target date",
     sortKey: "target_date",
     className: "whitespace-nowrap",
+    skeletonClassName: "h-5 w-24",
     cell: (project) => (
       <span className="flex flex-col">
         <span
@@ -149,6 +154,7 @@ const COLUMNS: Column<ProjectCardData>[] = [
     // Six columns need about 1400 px; on narrower screens the manager is on the project page.
     className: "hidden min-[1400px]:table-cell",
     headerClassName: "hidden min-[1400px]:table-cell",
+    skeletonClassName: "h-5 w-32",
     cell: (project) =>
       project.manager ? (
         <span className="block w-32 truncate text-foreground" title={project.manager.full_name}>
@@ -378,6 +384,7 @@ export function ProjectsListPage() {
             rows={data?.results ?? []}
             rowKey={(project) => project.id}
             loading={projects.isPending}
+            skeletonRows={8}
             stale={projects.isPlaceholderData}
             sort={ordering}
             onSortChange={(sort) => setFilter("ordering", sort)}

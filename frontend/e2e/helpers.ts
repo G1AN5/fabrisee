@@ -28,8 +28,8 @@ interface Fixtures {
 }
 
 /**
- * `test` that also fails when the browser console shows an error (definition of done:
- * "no errors in the browser console").
+ * `test` that also fails when the browser console shows an error or a warning (definition
+ * of done: "no errors in the browser console"; UI checklist: "no console errors or warnings").
  */
 export const test = base.extend<Fixtures>({
   allowFailedRequests: [false, { option: true }],
@@ -37,13 +37,13 @@ export const test = base.extend<Fixtures>({
     async ({ page, allowFailedRequests }, use) => {
       const problems: string[] = [];
       page.on("console", (message) => {
-        if (message.type() !== "error") return;
+        if (message.type() !== "error" && message.type() !== "warning") return;
         if (allowFailedRequests && message.text().startsWith("Failed to load resource")) return;
-        problems.push(message.text());
+        problems.push(`${message.type()}: ${message.text()}`);
       });
       page.on("pageerror", (error) => problems.push(error.message));
       await use(problems);
-      expect(problems, "errors in the browser console").toEqual([]);
+      expect(problems, "errors and warnings in the browser console").toEqual([]);
     },
     { auto: true },
   ],

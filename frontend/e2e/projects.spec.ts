@@ -42,6 +42,14 @@ test.describe("staff workspace (read-only screens of Milestone 2)", () => {
     await page.getByRole("button", { name: "Clear filters" }).click();
     await expect(rows).toHaveCount(8);
 
+    await page.getByRole("button", { name: "Target date" }).click();
+    await expect(page).toHaveURL(/ordering=target_date/);
+    await expect(rows.first()).toContainText("Window display refresh");
+    await expect(page.getByRole("columnheader", { name: "Target date" })).toHaveAttribute(
+      "aria-sort",
+      "ascending",
+    );
+
     await page.getByRole("searchbox", { name: /Search projects by number/ }).fill("aurelia");
     await expect(rows).toHaveCount(2);
     await expect(page).toHaveURL(/q=aurelia/);
@@ -121,7 +129,7 @@ test.describe("staff workspace (read-only screens of Milestone 2)", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Trade fair booth");
   });
 
-  test("notifications open the page they are about and count down when read", async ({ page }) => {
+  test("the notifications page filters by type", async ({ page }) => {
     await page.goto("/app/notifications");
     await expect(page.getByRole("heading", { level: 1, name: "Notifications" })).toBeVisible();
 
