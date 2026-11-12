@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./helpers";
 
 test("the API answers through the Vite proxy", async ({ request }) => {
   const response = await request.get("/api/health/");
@@ -7,15 +7,10 @@ test("the API answers through the Vite proxy", async ({ request }) => {
   expect(await response.json()).toMatchObject({ status: "ok", database: "ok" });
 });
 
-test("the app loads without browser console errors", async ({ page }) => {
-  const problems: string[] = [];
-  page.on("console", (message) => {
-    if (message.type() === "error") problems.push(message.text());
-  });
-  page.on("pageerror", (error) => problems.push(error.message));
-
+test("a visitor sees the sign-in page, without browser console errors", async ({ page }) => {
   await page.goto("/");
 
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
   await expect(page.getByRole("img", { name: "FabriSee" }).first()).toBeVisible();
-  expect(problems).toEqual([]);
 });

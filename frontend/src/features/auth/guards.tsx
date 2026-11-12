@@ -18,7 +18,7 @@ interface RequireAreaProps {
  * afterwards. Wrong area: a "no access" page with a way back.
  */
 export function RequireArea({ area, children }: RequireAreaProps) {
-  const { status, user, error, retry } = useAuth();
+  const { status, user, error, retry, signedOutByUser } = useAuth();
   const location = useLocation();
 
   if (status === "loading") return <LoadingScreen />;
@@ -31,6 +31,9 @@ export function RequireArea({ area, children }: RequireAreaProps) {
     );
   }
   if (!user) {
+    // After "Sign out" the sign-in page starts fresh. A session that ended by itself, or a
+    // link opened without one, comes back to this page after signing in.
+    if (signedOutByUser) return <Navigate to="/login" replace />;
     const next = `${location.pathname}${location.search}`;
     return <Navigate to={`/login?next=${encodeURIComponent(next)}`} replace />;
   }

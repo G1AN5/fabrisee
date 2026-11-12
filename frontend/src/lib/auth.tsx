@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, type ReactNode, useContext, useEffect, useMemo } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 
 import { api, ApiError, setUnauthorizedHandler } from "@/lib/api";
 import { queryKeys } from "@/lib/query";
@@ -12,6 +12,11 @@ interface AuthContextValue {
   user: CurrentUser | null;
   /** The reason the server could not be reached (status "unreachable"). */
   error: ApiError | null;
+  /**
+   * True after the user chose "Sign out". The sign-in page then starts fresh, and does not
+   * bring the next person to the page the previous one was on.
+   */
+  signedOutByUser: boolean;
   /** True when the user's role allows this (what the UI may show; the API decides). */
   can: (permission: Permission) => boolean;
   signIn: (email: string, password: string) => Promise<CurrentUser>;
@@ -30,6 +35,7 @@ async function fetchCurrentUser(signal?: AbortSignal): Promise<CurrentUser | nul
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
+  const [signedOutByUser, setSignedOutByUser] = useState(false);
 
   const me = useQuery({
     queryKey: queryKeys.me,
@@ -87,14 +93,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       error,
       can: (permission) => Boolean(user?.permissions[permission]),
-      signIn: (email, password) => signInAsync({ email, password }),
+      signedOutByUser,
+      signIn: async (email, password) => {
+        const signedIn = await signInAsync({ email, password });
+        setSignedOutByUser(false);
+        return signedIn;
+      },
       signOut: async () => {
+        setSignedOutByUser(true);
         await signOutAsync().catch(() => undefined);
       },
       acknowledgePrivacy: () => acknowledgeAsync(),
       retry: () => void refetch(),
     }),
-    [status, user, error, signInAsync, signOutAsync, acknowledgeAsync, refetch],
+    [status, user, error, signedOutByUser, signInAsync, signOutAsync, acknowledgeAsync, refetch],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
