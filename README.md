@@ -19,6 +19,15 @@ Turnover**.
 > to 8. See [`PROGRESS.md`](PROGRESS.md) for what is done and what is next, and
 > [`FABRISEE_BUILD_GUIDE.md`](FABRISEE_BUILD_GUIDE.md) for the full specification.
 
+<p>
+  <img src="docs/screenshots/desktop-dashboard-manager.png" width="72%"
+       alt="The management dashboard of the staff workspace: key numbers, decisions that need attention, and recent activity">
+  <img src="docs/screenshots/mobile-portal-home.png" width="19%"
+       alt="The client portal on a phone: a design revision waiting for the client's review, then the client's projects">
+</p>
+
+More screens, at desktop and phone size: [`docs/screenshots/`](docs/screenshots/).
+
 ## Try it in GitHub Codespaces (nothing to install)
 
 1. On the repository page choose **Code → Codespaces → Create codespace on main**.
@@ -77,7 +86,7 @@ Run these from the repository root.
 | `make setup` | Install backend and frontend dependencies, create `.env`, migrate, load the demo data |
 | `make dev` | Run Django (port 8000), Vite (port 5173), and the reminder scheduler together |
 | `make test` | ruff, pytest, ESLint, Prettier, TypeScript check, Vitest |
-| `make e2e` | Playwright end-to-end tests (needs `npx playwright install chromium` in `frontend/`) |
+| `make e2e` | Playwright end-to-end tests: sign-in for each role, who may see what, the main screens |
 | `make screenshots` | Capture the key screens into `docs/screenshots/` at 1440 × 900 and 390 × 844 |
 | `make seed` | Load the demo data (does nothing if it is already loaded) |
 | `make reset-demo` | Delete all data and uploads, then load fresh demo data |
@@ -85,6 +94,11 @@ Run these from the repository root.
 | `make help` | List every command |
 
 Open the app at <http://localhost:5173> (in Codespaces, the forwarded port 5173).
+
+`make e2e` and `make screenshots` need a browser for Playwright. Install it once with
+`cd frontend && npx playwright install chromium`. They start the app themselves, or use the one
+that `make dev` is already running, and they expect the demo data (`make reset-demo` for a fresh
+copy). Every pull request also runs `make test` and the end-to-end tests on GitHub Actions.
 
 Other addresses in development:
 
