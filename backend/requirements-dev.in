@@ -1,0 +1,10 @@
+# Development and test dependencies. Edit this file, then run `make lock` to
+# regenerate the fully pinned requirements-dev.txt.
+-r requirements.in
+drf-spectacular
+honcho
+pytest
+pytest-django
+pytest-cov
+factory-boy
+ruff
