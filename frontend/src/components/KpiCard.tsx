@@ -21,7 +21,7 @@ export function KpiCard({ label, value, hint, icon: Icon, to, alert = false }: K
   return (
     <Link
       to={to}
-      className="group flex flex-col gap-2 rounded-lg border bg-card p-5 shadow-xs transition-[border-color,box-shadow] duration-150 ease-out hover:border-slate-300 hover:shadow-sm"
+      className="group flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-xs sm:p-5 transition-[border-color,box-shadow] duration-150 ease-out hover:border-slate-300 hover:shadow-sm"
     >
       <span className="flex items-center justify-between gap-3">
         <span className="text-sm font-medium text-muted-foreground">{label}</span>
@@ -43,7 +43,7 @@ export function KpiCard({ label, value, hint, icon: Icon, to, alert = false }: K
         {value}
       </span>
       <span className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-        <span className="truncate">{hint}</span>
+        <span className="line-clamp-2">{hint}</span>
         <ArrowRight
           className="size-3.5 shrink-0 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
           aria-hidden="true"

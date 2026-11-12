@@ -78,7 +78,7 @@ export function ProjectCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate text-base font-semibold text-foreground" title={project.title}>
+          <p className="line-clamp-2 text-base font-semibold text-foreground" title={project.title}>
             {project.title}
           </p>
           <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">

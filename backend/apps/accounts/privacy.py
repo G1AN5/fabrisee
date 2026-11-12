@@ -63,4 +63,8 @@ def _notice_template() -> str:
 
 
 def load_privacy_notice(company_name: str) -> dict:
-    return parse_notice(_notice_template().replace("{company_name}", company_name))
+    text = _notice_template()
+    if company_name.endswith("."):
+        # A name such as "Five Brothers Solutions Inc." already ends the sentence.
+        text = text.replace("{company_name}.", company_name)
+    return parse_notice(text.replace("{company_name}", company_name))

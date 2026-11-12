@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams } from "react-router";
 
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
-import { FilePreview } from "@/components/FilePreview";
 import { ProjectNumber } from "@/components/ProjectNumber";
 import { StageChip } from "@/components/StageChip";
 import { StageTracker } from "@/components/StageTracker";
@@ -23,6 +22,7 @@ import { QuotationCard } from "@/features/quotations/QuotationCard";
 import { RevisionsTab } from "@/features/revisions/RevisionsTab";
 import { ApiError } from "@/lib/api";
 import { PORTAL_PROJECT_TABS, type PortalProjectTab } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import type { ProjectDetail } from "@/lib/types";
 
 /** The quotation tab of the client portal: the current version with its PDF, then earlier ones. */
@@ -68,8 +68,7 @@ function PortalQuotationTab({ project }: { project: ProjectDetail }) {
           </span>
         </p>
       )}
-      <QuotationCard quotation={current} forClient />
-      <FilePreview file={current.file} alt={`Quotation ${current.label}`} />
+      <QuotationCard quotation={current} forClient preview />
 
       {earlier.length > 0 && (
         <details className="group rounded-lg border bg-card">
@@ -156,22 +155,28 @@ export function PortalProjectPage() {
                 <StatusBadge status={data.status} />
               )}
             </div>
-            <StageTracker stage={data.stage} stageDates={data.stage_dates} status={data.status} />
-            <NextStepBanner
-              step={data.next_step}
-              forClient
-              large
-              action={
-                data.next_step.action_needed && item && tab !== actionTab ? (
-                  <Button asChild>
-                    <Link to={`${base}/${actionTab}`}>
-                      Review now
-                      <ArrowRight aria-hidden="true" />
-                    </Link>
-                  </Button>
-                ) : undefined
-              }
-            />
+            {/* On a phone, a decision that waits for this client comes before the tracker,
+                so the button is on the first screen. */}
+            <div className={cn(data.next_step.action_needed && "max-sm:order-2")}>
+              <StageTracker stage={data.stage} stageDates={data.stage_dates} status={data.status} />
+            </div>
+            <div className={cn(data.next_step.action_needed && "max-sm:order-1")}>
+              <NextStepBanner
+                step={data.next_step}
+                forClient
+                large
+                action={
+                  data.next_step.action_needed && item && tab !== actionTab ? (
+                    <Button asChild>
+                      <Link to={`${base}/${actionTab}`}>
+                        Review now
+                        <ArrowRight aria-hidden="true" />
+                      </Link>
+                    </Button>
+                  ) : undefined
+                }
+              />
+            </div>
           </Card>
 
           {data.approved_revision && (

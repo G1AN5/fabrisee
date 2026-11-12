@@ -74,6 +74,13 @@ export function FileRow({ file, label }: { file: FileRef; label?: string }) {
   );
 }
 
+/**
+ * Desktop browsers show PDFs with a built-in viewer. Where there is none (most phones, some
+ * embedded browsers), the file is offered as a row to open or download.
+ */
+const PDF_VIEWER_AVAILABLE =
+  typeof navigator === "undefined" || navigator.pdfViewerEnabled !== false;
+
 interface FilePreviewProps {
   file: FileRef;
   /** Describes the image, for example "Design R2 of FS-2026-0007". */
@@ -94,7 +101,7 @@ export function FilePreview({ file, alt, className }: FilePreviewProps) {
   const wide = useMediaQuery("(min-width: 768px)");
 
   if (!file.is_image) {
-    if (file.is_pdf && wide) {
+    if (file.is_pdf && wide && PDF_VIEWER_AVAILABLE) {
       return (
         <div className={cn("flex flex-col gap-3", className)}>
           <object
@@ -103,11 +110,11 @@ export function FilePreview({ file, alt, className }: FilePreviewProps) {
             aria-label={alt}
             className="h-[70vh] min-h-96 w-full rounded-lg border bg-slate-100"
           >
-            <FileRow file={file} />
+            <p className="p-4 text-muted-foreground">
+              This PDF could not be shown here. Open or download it below.
+            </p>
           </object>
-          <div className="flex justify-end">
-            <FileLinks file={file} compact />
-          </div>
+          <FileRow file={file} />
         </div>
       );
     }

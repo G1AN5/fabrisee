@@ -63,13 +63,13 @@ export function OverviewTab({ project, forClient = false }: OverviewTabProps) {
   const client = project.client;
 
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-3">
+    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>Project details</CardTitle>
         </CardHeader>
         <CardContent>
-          <dl className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
+          <dl className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
             <Field label="Project type">{project.project_type_label}</Field>
             <Field label="Target date">
               <span className="tabular-nums">{formatDate(project.target_date)}</span>
@@ -95,12 +95,14 @@ export function OverviewTab({ project, forClient = false }: OverviewTabProps) {
                 )}
               </Field>
             </div>
-            <Field label="Request submitted">
-              <span className="tabular-nums">{formatDateTime(project.created_at)}</span>
-              {project.created_by && (
-                <span className="text-muted-foreground"> by {project.created_by.full_name}</span>
-              )}
-            </Field>
+            <div className="sm:col-span-2">
+              <Field label="Request submitted">
+                <span className="tabular-nums">{formatDateTime(project.created_at)}</span>
+                {project.created_by && (
+                  <span className="text-muted-foreground"> by {project.created_by.full_name}</span>
+                )}
+              </Field>
+            </div>
           </dl>
         </CardContent>
       </Card>

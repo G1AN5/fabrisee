@@ -46,7 +46,7 @@ function BlueprintDrawing() {
 export function AuthLayout() {
   useUiScale("auth");
   return (
-    <div className="grid min-h-dvh bg-card lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <div className="grid min-h-dvh grid-cols-1 bg-card lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       <aside className="blueprint-grid relative hidden flex-col overflow-hidden bg-primary p-12 text-white lg:flex">
         <AppLogo variant="inverse" size="lg" />
         <div className="flex min-h-0 flex-1 items-center justify-end py-8">

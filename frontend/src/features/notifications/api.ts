@@ -10,6 +10,7 @@ export interface NotificationPage extends Paginated<AppNotification> {
 
 export interface NotificationParams extends QueryParams {
   unread?: string;
+  category?: string;
   event?: string;
   page?: number;
   page_size?: number;

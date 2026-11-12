@@ -23,6 +23,7 @@ import { PendingDecisionList } from "@/features/dashboard/PendingDecisionList";
 import { useAuth, useCurrentUser } from "@/lib/auth";
 import { describeDue, formatDate, formatLongDate, greeting } from "@/lib/format";
 import type { Dashboard, ProjectCardData } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 function plural(count: number, one: string, many: string): string {
   return `${count} ${count === 1 ? one : many}`;
@@ -36,7 +37,7 @@ function DashboardSkeleton() {
           <Skeleton key={index} className="h-32 rounded-lg" />
         ))}
       </div>
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Skeleton className="h-80 rounded-lg lg:col-span-2" />
         <Skeleton className="h-80 rounded-lg" />
       </div>
@@ -45,13 +46,19 @@ function DashboardSkeleton() {
   );
 }
 
-/** A project past its target date, or due soon, as one row. */
-function ProjectRow({ project }: { project: ProjectCardData }) {
+/**
+ * A project past its target date, or due soon, as one row. `stacked` keeps the stage and the
+ * due date under the title, for a narrow card.
+ */
+function ProjectRow({ project, stacked = false }: { project: ProjectCardData; stacked?: boolean }) {
   return (
     <li>
       <Link
         to={`/app/projects/${project.id}`}
-        className="flex flex-col gap-1 px-5 py-3 transition-colors duration-150 -outline-offset-2 hover:bg-slate-50 sm:flex-row sm:items-center sm:gap-4 sm:px-6"
+        className={cn(
+          "flex flex-col gap-1 px-5 py-3 transition-colors duration-150 -outline-offset-2 hover:bg-slate-50 sm:px-6",
+          !stacked && "sm:flex-row sm:items-center sm:gap-4",
+        )}
       >
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium text-foreground">{project.title}</span>
@@ -143,7 +150,7 @@ function DueSoon({ data }: { data: Dashboard }) {
       ) : (
         <ul className="flex flex-col divide-y border-t pb-2">
           {data.due_soon.map((project) => (
-            <ProjectRow key={project.id} project={project} />
+            <ProjectRow key={project.id} project={project} stacked />
           ))}
         </ul>
       )}
@@ -173,7 +180,7 @@ function RecentActivity({ data }: { data: Dashboard }) {
 
 function Focus({ focus }: { focus: NonNullable<Dashboard["focus"]> }) {
   return (
-    <section aria-labelledby="focus-heading" className="mb-6">
+    <section aria-labelledby="focus-heading">
       <h2 id="focus-heading" className="mb-3 text-base font-semibold">
         {focus.title}
         <span className="ml-2 font-normal text-muted-foreground tabular-nums">
@@ -185,7 +192,7 @@ function Focus({ focus }: { focus: NonNullable<Dashboard["focus"]> }) {
           <EmptyState compact icon={CircleCheck} title={focus.empty_text} />
         </Card>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {focus.projects.map((project) => (
             <li key={project.id}>
               <ProjectCard project={project} to={`/app/projects/${project.id}`} />
@@ -208,7 +215,7 @@ function StageColumns({ data }: { data: Dashboard }) {
           Stages change through quotations, approvals, and progress updates, not here.
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {data.by_stage.map((column) => (
           <section
             key={column.stage}
@@ -319,7 +326,7 @@ export function DashboardPage() {
           </section>
           {/* The activity feed is for administrators and project managers; other roles
               see what is due soon next to what needs attention. */}
-          <div className="grid items-start gap-6 lg:grid-cols-3">
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
             <div className="flex flex-col gap-6 lg:col-span-2">
               <NeedsAttention data={data} />
               {showActivity && <DueSoon data={data} />}

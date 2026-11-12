@@ -87,7 +87,7 @@ export function RevisionsTab({
 
   if (revisions.isPending) {
     return (
-      <div aria-hidden="true" className="grid gap-6 lg:grid-cols-[13rem_1fr]">
+      <div aria-hidden="true" className="grid grid-cols-1 gap-6 lg:grid-cols-[13rem_1fr]">
         <Skeleton className="h-40 rounded-lg" />
         <Skeleton className="h-[28rem] rounded-lg" />
       </div>
@@ -129,7 +129,7 @@ export function RevisionsTab({
     selected.approvals.some((line) => line.approver.id === user.id && line.state === "pending");
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[13rem_minmax(0,1fr)]">
       <RevisionList
         revisions={revisions.data}
         selected={selected}

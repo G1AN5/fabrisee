@@ -73,7 +73,7 @@ export function PortalHomePage() {
       </header>
 
       {projects.isPending && (
-        <div aria-hidden="true" className="grid gap-4 md:grid-cols-2">
+        <div aria-hidden="true" className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Skeleton className="h-52 rounded-lg" />
           <Skeleton className="h-52 rounded-lg" />
         </div>
@@ -124,7 +124,7 @@ export function PortalHomePage() {
           <h2 id="projects-heading" className="mb-3 text-lg font-semibold text-foreground">
             My projects
           </h2>
-          <ul className="grid gap-4 md:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {all.map((project) => (
               <li key={project.id}>
                 <ProjectCard

@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Notification, NotificationEvent
+from .models import Notification, NotificationCategory, NotificationEvent, events_in_category
 from .serializers import NotificationSerializer
 
 
@@ -21,6 +21,7 @@ def unread_count(user) -> int:
 class NotificationFilter(filters.FilterSet):
     unread = filters.BooleanFilter(method="filter_unread")
     event = filters.ChoiceFilter(choices=NotificationEvent.choices)
+    category = filters.ChoiceFilter(choices=NotificationCategory.choices, method="filter_category")
 
     class Meta:
         model = Notification
@@ -31,10 +32,14 @@ class NotificationFilter(filters.FilterSet):
             return queryset
         return queryset.filter(is_read=not value)
 
+    def filter_category(self, queryset, name, value):
+        return queryset.filter(event__in=events_in_category(value))
+
 
 class NotificationListView(ListAPIView):
     """`GET /api/notifications/`: the user's notifications, newest first.
 
+    Filters: `unread=1`, `category` (requests, quotations, revisions, reminders, stages), `event`.
     The response also carries `unread_count` (for the notification bell).
     """
 

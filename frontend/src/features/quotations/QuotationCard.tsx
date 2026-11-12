@@ -1,4 +1,4 @@
-import { FileRow } from "@/components/FilePreview";
+import { FilePreview, FileRow } from "@/components/FilePreview";
 import { Money } from "@/components/Money";
 import { RelativeTime } from "@/components/RelativeTime";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -80,11 +80,18 @@ interface QuotationCardProps {
   quotation: Quotation;
   /** Wording for the client portal ("your decision") instead of the staff workspace. */
   forClient?: boolean;
+  /** Show the PDF itself where the browser can, not only the links to it. */
+  preview?: boolean;
   className?: string;
 }
 
 /** One quotation version: amount, status, who prepared and decided it, and the PDF. */
-export function QuotationCard({ quotation, forClient = false, className }: QuotationCardProps) {
+export function QuotationCard({
+  quotation,
+  forClient = false,
+  preview = false,
+  className,
+}: QuotationCardProps) {
   return (
     <article
       className={cn("flex flex-col gap-4 rounded-lg border bg-card p-5 shadow-xs", className)}
@@ -123,7 +130,11 @@ export function QuotationCard({ quotation, forClient = false, className }: Quota
         </div>
       )}
 
-      <FileRow file={quotation.file} />
+      {preview ? (
+        <FilePreview file={quotation.file} alt={`Quotation ${quotation.label}`} />
+      ) : (
+        <FileRow file={quotation.file} />
+      )}
     </article>
   );
 }

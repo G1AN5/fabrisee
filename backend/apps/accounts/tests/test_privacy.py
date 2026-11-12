@@ -24,3 +24,13 @@ def test_notice_covers_what_why_who_and_rights():
     headings = [block["text"] for block in notice["blocks"] if block["type"] == "heading"]
     assert headings == ["What FabriSee keeps", "Why it is kept", "Who can see it", "Your rights"]
     assert "Sample Company" in notice["blocks"][0]["text"]
+
+
+def test_a_company_name_that_ends_with_a_period_is_not_followed_by_another():
+    notice = load_privacy_notice("Five Brothers Solutions Inc.")
+
+    texts = [block["text"] for block in notice["blocks"] if block["type"] == "paragraph"]
+    assert texts[0].startswith(
+        "FabriSee is the project coordination system of Five Brothers Solutions Inc. In line"
+    )
+    assert not any(".." in text for text in texts)

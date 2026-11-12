@@ -1,7 +1,11 @@
 import pytest
 
 from apps.accounts.tests.factories import StaffFactory, UserFactory
-from apps.notifications.models import NotificationEvent
+from apps.notifications.models import (
+    EVENT_CATEGORIES,
+    NotificationCategory,
+    NotificationEvent,
+)
 from apps.notifications.tests.factories import NotificationFactory
 from apps.projects.tests.factories import ProjectFactory
 
@@ -57,6 +61,28 @@ def test_list_filters_by_unread_and_event(login, user):
     assert [n["title"] for n in read["results"]] == ["Read"]
     # The unread count is always the total, whatever the filter.
     assert read["unread_count"] == 1
+
+
+def test_list_filters_by_category(login, user):
+    NotificationFactory(user=user, title="Sent", event=NotificationEvent.QUOTATION_SENT)
+    NotificationFactory(user=user, title="Decided", event=NotificationEvent.QUOTATION_DECIDED)
+    NotificationFactory(user=user, title="Uploaded", event=NotificationEvent.REVISION_UPLOADED)
+    NotificationFactory(user=user, title="Overdue", event=NotificationEvent.DECISION_OVERDUE_ALERT)
+    api = login(user)
+
+    quotations = api.get("/api/notifications/?category=quotations").json()
+    reminders = api.get("/api/notifications/?category=reminders").json()
+    unknown = api.get("/api/notifications/?category=payments")
+
+    assert {n["title"] for n in quotations["results"]} == {"Sent", "Decided"}
+    assert [n["title"] for n in reminders["results"]] == ["Overdue"]
+    assert unknown.status_code == 400
+    assert "category" in unknown.json()["fields"]
+
+
+def test_every_event_belongs_to_a_category():
+    assert set(EVENT_CATEGORIES) == set(NotificationEvent.values)
+    assert set(EVENT_CATEGORIES.values()) == set(NotificationCategory.values)
 
 
 def test_mark_one_notification_as_read(login, user):

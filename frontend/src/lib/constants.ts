@@ -148,3 +148,12 @@ export type PortalProjectTab = (typeof PORTAL_PROJECT_TABS)[number]["value"];
 export const MAX_UPLOAD_MB = 20;
 export const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const PDF_TYPE = "application/pdf";
+
+/** The "type" filter of the notifications page (groups of events, as in the API). */
+export const NOTIFICATION_CATEGORIES = [
+  { value: "requests", label: "Requests" },
+  { value: "quotations", label: "Quotations" },
+  { value: "revisions", label: "Design revisions" },
+  { value: "reminders", label: "Reminders" },
+  { value: "stages", label: "Project stages" },
+] as const;

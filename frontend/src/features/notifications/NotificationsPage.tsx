@@ -10,26 +10,56 @@ import { ProjectNumber } from "@/components/ProjectNumber";
 import { RelativeTime } from "@/components/RelativeTime";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
 } from "@/features/notifications/api";
+import { NOTIFICATION_CATEGORIES } from "@/lib/constants";
 import type { AppNotification } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+const ALL = "all";
 
 /** All notifications of the signed-in user (staff workspace and client portal). */
 export function NotificationsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const unreadOnly = searchParams.get("unread") === "1";
+  const category = NOTIFICATION_CATEGORIES.find(
+    (item) => item.value === searchParams.get("category"),
+  )?.value;
   const page = Math.max(1, Number(searchParams.get("page")) || 1);
-  const notifications = useNotifications({ unread: unreadOnly ? "1" : undefined, page });
+  const notifications = useNotifications({
+    unread: unreadOnly ? "1" : undefined,
+    category,
+    page,
+  });
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
   const data = notifications.data;
   const unread = data?.unread_count ?? 0;
+
+  function setFilter(key: "unread" | "category", value: string | null) {
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        if (value === null || value === ALL) next.delete(key);
+        else next.set(key, value);
+        next.delete("page");
+        return next;
+      },
+      { replace: true },
+    );
+  }
 
   function open(notification: AppNotification) {
     if (!notification.is_read) markRead.mutate(notification.id);
@@ -37,7 +67,8 @@ export function NotificationsPage() {
   }
 
   return (
-    <>
+    // Sentences read best in a column that is not too wide.
+    <div className="max-w-4xl">
       <PageHeader
         title="Notifications"
         description={
@@ -63,12 +94,23 @@ export function NotificationsPage() {
         <FilterRow>
           <FilterToggle
             pressed={unreadOnly}
-            onPressedChange={(pressed) =>
-              setSearchParams(pressed ? { unread: "1" } : {}, { replace: true })
-            }
+            onPressedChange={(pressed) => setFilter("unread", pressed ? "1" : null)}
           >
             Unread only
           </FilterToggle>
+          <Select value={category ?? ALL} onValueChange={(value) => setFilter("category", value)}>
+            <SelectTrigger className="w-48" aria-label="Type of notification">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All types</SelectItem>
+              {NOTIFICATION_CATEGORIES.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </FilterRow>
       </FilterBar>
 
@@ -90,8 +132,18 @@ export function NotificationsPage() {
         {data && data.results.length === 0 && (
           <EmptyState
             icon={BellOff}
-            title={unreadOnly ? "No unread notifications" : "You have no notifications yet"}
-            description="FabriSee tells you here when a quotation, a design revision, or a stage change needs your attention."
+            title={
+              category
+                ? "No notification matches these filters"
+                : unreadOnly
+                  ? "No unread notifications"
+                  : "You have no notifications yet"
+            }
+            description={
+              category
+                ? "Choose another type, or show all types."
+                : "FabriSee tells you here when a quotation, a design revision, or a stage change needs your attention."
+            }
           />
         )}
         {data && data.results.length > 0 && (
@@ -158,6 +210,6 @@ export function NotificationsPage() {
           }
         />
       )}
-    </>
+    </div>
   );
 }

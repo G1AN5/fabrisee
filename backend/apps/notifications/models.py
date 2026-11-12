@@ -20,6 +20,36 @@ class NotificationEvent(models.TextChoices):
     CHANGE_REQUESTED_BY_CLIENT = "change_requested_by_client", "Change requested by the client"
 
 
+class NotificationCategory(models.TextChoices):
+    """Groups of events: the "type" filter of the notifications page."""
+
+    REQUESTS = "requests", "Requests"
+    QUOTATIONS = "quotations", "Quotations"
+    REVISIONS = "revisions", "Design revisions"
+    REMINDERS = "reminders", "Reminders"
+    STAGES = "stages", "Project stages"
+
+
+EVENT_CATEGORIES: dict[str, str] = {
+    NotificationEvent.REQUEST_SUBMITTED: NotificationCategory.REQUESTS,
+    NotificationEvent.CHANGE_REQUESTED_BY_CLIENT: NotificationCategory.REQUESTS,
+    NotificationEvent.QUOTATION_SENT: NotificationCategory.QUOTATIONS,
+    NotificationEvent.QUOTATION_DECIDED: NotificationCategory.QUOTATIONS,
+    NotificationEvent.REVISION_UPLOADED: NotificationCategory.REVISIONS,
+    NotificationEvent.REVISION_CHANGES_REQUESTED: NotificationCategory.REVISIONS,
+    NotificationEvent.REVISION_APPROVED: NotificationCategory.REVISIONS,
+    NotificationEvent.DESIGN_REOPENED: NotificationCategory.REVISIONS,
+    NotificationEvent.DECISION_REMINDER: NotificationCategory.REMINDERS,
+    NotificationEvent.DECISION_OVERDUE_ALERT: NotificationCategory.REMINDERS,
+    NotificationEvent.STAGE_CHANGED: NotificationCategory.STAGES,
+    NotificationEvent.PROJECT_TURNED_OVER: NotificationCategory.STAGES,
+}
+
+
+def events_in_category(category: str) -> list[str]:
+    return [event for event, group in EVENT_CATEGORIES.items() if group == category]
+
+
 class EmailStatus(models.TextChoices):
     LOGGED = "logged", "Logged (not sent)"
     SENT = "sent", "Sent"
