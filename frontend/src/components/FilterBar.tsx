@@ -6,28 +6,21 @@ import { cn } from "@/lib/utils";
 
 interface FilterBarProps {
   children: ReactNode;
-  /** Shown when at least one filter is set. */
-  onClear?: () => void;
   className?: string;
 }
 
-/** A row of filters above a list. Wraps onto more rows on narrow screens. */
-export function FilterBar({ children, onClear, className }: FilterBarProps) {
+/** The filters above a list: one or more `FilterRow`s. */
+export function FilterBar({ children, className }: FilterBarProps) {
   return (
-    <div
-      role="search"
-      aria-label="Filters"
-      className={cn("mb-4 flex flex-wrap items-center gap-2", className)}
-    >
+    <div role="search" aria-label="Filters" className={cn("mb-4 flex flex-col gap-2", className)}>
       {children}
-      {onClear && (
-        <Button variant="ghost" size="sm" onClick={onClear} className="text-muted-foreground">
-          <X aria-hidden="true" />
-          Clear filters
-        </Button>
-      )}
     </div>
   );
+}
+
+/** One row of filters. Wraps onto more lines on narrow screens. */
+export function FilterRow({ children, className }: FilterBarProps) {
+  return <div className={cn("flex flex-wrap items-center gap-2", className)}>{children}</div>;
 }
 
 interface FilterToggleProps {
@@ -52,5 +45,15 @@ export function FilterToggle({ pressed, onPressedChange, children }: FilterToggl
     >
       {children}
     </button>
+  );
+}
+
+/** Removes every filter at once. Show it only while a filter is set. */
+export function ClearFilters({ onClear }: { onClear: () => void }) {
+  return (
+    <Button variant="ghost" onClick={onClear} className="text-muted-foreground">
+      <X aria-hidden="true" />
+      Clear filters
+    </Button>
   );
 }

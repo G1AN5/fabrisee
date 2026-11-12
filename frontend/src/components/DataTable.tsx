@@ -39,9 +39,19 @@ interface DataTableProps<T> {
   empty?: ReactNode;
   /** How a row looks as a card on narrow screens (tables become cards). */
   mobileCard?: (row: T) => ReactNode;
+  /**
+   * The width below which the cards are shown instead of the table. A table with many columns
+   * needs "xl"; the cards then sit in two columns on tablets and small laptops.
+   */
+  cardsBelow?: "md" | "xl";
   /** Dim the rows while newer data loads. */
   stale?: boolean;
 }
+
+const CARD_LAYOUT = {
+  md: { cards: "flex flex-col md:hidden", table: "hidden md:block" },
+  xl: { cards: "grid grid-cols-1 md:grid-cols-2 xl:hidden", table: "hidden xl:block" },
+} as const;
 
 function nextSort(current: string | undefined, key: string): string {
   return current === key ? `-${key}` : key;
@@ -60,8 +70,11 @@ export function DataTable<T>({
   skeletonRows = 6,
   empty,
   mobileCard,
+  cardsBelow = "md",
   stale = false,
 }: DataTableProps<T>) {
+  const layout = CARD_LAYOUT[cardsBelow];
+
   if (!loading && rows.length === 0 && empty) {
     return <>{empty}</>;
   }
@@ -71,7 +84,8 @@ export function DataTable<T>({
       {mobileCard && (
         <ul
           className={cn(
-            "flex flex-col gap-3 md:hidden",
+            "gap-3",
+            layout.cards,
             stale && "opacity-60 transition-opacity duration-150",
           )}
         >
@@ -81,13 +95,18 @@ export function DataTable<T>({
                   <Skeleton className="h-36 w-full rounded-lg" />
                 </li>
               ))
-            : rows.map((row) => <li key={rowKey(row)}>{mobileCard(row)}</li>)}
+            : rows.map((row) => (
+                // The card fills its grid cell, so two cards side by side are the same height.
+                <li key={rowKey(row)} className="*:h-full">
+                  {mobileCard(row)}
+                </li>
+              ))}
         </ul>
       )}
       <div
         className={cn(
           "overflow-hidden rounded-lg border bg-card shadow-xs",
-          mobileCard && "hidden md:block",
+          mobileCard && layout.table,
         )}
       >
         <Table>
@@ -134,7 +153,7 @@ export function DataTable<T>({
                   <TableRow key={index}>
                     {columns.map((column) => (
                       <TableCell key={column.key} className={column.className}>
-                        <Skeleton className="h-5 w-full max-w-40" />
+                        <Skeleton className="h-5 w-full max-w-40 min-w-16" />
                       </TableCell>
                     ))}
                   </TableRow>

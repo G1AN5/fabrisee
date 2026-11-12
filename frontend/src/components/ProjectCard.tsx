@@ -20,6 +20,8 @@ interface ProjectCardProps {
   variant?: "compact" | "full";
   /** Hide the client name (in the client portal every project is the client's own). */
   hideClient?: boolean;
+  /** Name the project manager (the staff list on narrow screens, where there is no table). */
+  showManager?: boolean;
 }
 
 export function ProjectCard({
@@ -27,6 +29,7 @@ export function ProjectCard({
   to,
   variant = "compact",
   hideClient = false,
+  showManager = false,
 }: ProjectCardProps) {
   const open = project.status === "active" || project.status === "on_hold";
 
@@ -83,6 +86,11 @@ export function ProjectCard({
             {!hideClient && <span>{project.client.company_name}</span>}
             <span>{project.project_type_label}</span>
           </p>
+          {showManager && (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Manager: {project.manager?.full_name ?? "not assigned"}
+            </p>
+          )}
         </div>
         {project.status === "active" ? (
           <StageChip stage={project.stage} short className="mt-0.5" />

@@ -5,12 +5,11 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { type Column, DataTable } from "@/components/DataTable";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
-import { FilterBar, FilterToggle } from "@/components/FilterBar";
+import { ClearFilters, FilterBar, FilterRow, FilterToggle } from "@/components/FilterBar";
 import { PageHeader } from "@/components/PageHeader";
 import { Pagination } from "@/components/Pagination";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ProjectNumber } from "@/components/ProjectNumber";
-import { RelativeTime } from "@/components/RelativeTime";
 import { StageChip } from "@/components/StageChip";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
@@ -52,13 +51,14 @@ const SORT_OPTIONS = [
   { value: "-created", label: "Newest projects first" },
 ];
 
+// The table is shown from 1280 px. The inner widths keep the columns steady while the rows load
+// and leave what remains to the next step, which is the sentence people read.
 const COLUMNS: Column<ProjectCardData>[] = [
   {
     key: "project",
     header: "Project",
-    className: "max-w-72",
     cell: (project) => (
-      <div className="min-w-0">
+      <div className="w-56 2xl:w-72">
         <Link
           to={`/app/projects/${project.id}`}
           onClick={(event) => event.stopPropagation()}
@@ -74,9 +74,8 @@ const COLUMNS: Column<ProjectCardData>[] = [
   {
     key: "client",
     header: "Client and type",
-    className: "max-w-48",
     cell: (project) => (
-      <div className="min-w-0">
+      <div className="w-40 2xl:w-48">
         <span className="block truncate text-foreground" title={project.client.company_name}>
           {project.client.company_name}
         </span>
@@ -101,11 +100,13 @@ const COLUMNS: Column<ProjectCardData>[] = [
   {
     key: "next_step",
     header: "Next step",
-    className: "max-w-80 min-w-48",
+    className: "w-full",
+    headerClassName: "w-full",
     cell: (project) => (
       <span
+        title={project.next_step.text}
         className={cn(
-          "line-clamp-2",
+          "line-clamp-3 min-w-44",
           project.next_step.action_needed ? "font-medium text-foreground" : "text-slate-700",
         )}
       >
@@ -145,19 +146,17 @@ const COLUMNS: Column<ProjectCardData>[] = [
   {
     key: "manager",
     header: "Manager",
-    className: "max-w-40",
-    cell: (project) => (
-      <span className="block truncate text-foreground">
-        {project.manager?.full_name ?? <span className="text-muted-foreground">Not assigned</span>}
-      </span>
-    ),
-  },
-  {
-    key: "updated",
-    header: "Updated",
-    sortKey: "last_activity",
-    className: "text-muted-foreground",
-    cell: (project) => <RelativeTime value={project.last_activity_at} />,
+    // Six columns need about 1400 px; on narrower screens the manager is on the project page.
+    className: "hidden min-[1400px]:table-cell",
+    headerClassName: "hidden min-[1400px]:table-cell",
+    cell: (project) =>
+      project.manager ? (
+        <span className="block w-32 truncate text-foreground" title={project.manager.full_name}>
+          {project.manager.full_name}
+        </span>
+      ) : (
+        <span className="block w-32 text-muted-foreground">Not assigned</span>
+      ),
   },
 ];
 
@@ -238,118 +237,129 @@ export function ProjectsListPage() {
         }
       />
 
-      <FilterBar onClear={filtered ? clearFilters : undefined}>
-        <div className="relative w-full sm:w-64">
-          <Search
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            type="search"
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
-            placeholder="Number, title, or client"
-            aria-label="Search projects by number, title, or client"
-            className="pl-9"
-          />
-        </div>
-        <Select value={params.stage ?? ALL} onValueChange={(value) => setFilter("stage", value)}>
-          <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-44" aria-label="Stage">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>All stages</SelectItem>
-            {STAGES.map((stage) => (
-              <SelectItem key={stage.value} value={stage.value}>
-                {stage.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={params.status ?? ALL} onValueChange={(value) => setFilter("status", value)}>
-          <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-36" aria-label="Status">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>All statuses</SelectItem>
-            {Object.entries(PROJECT_STATUS_LABELS).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {can("view_clients") && (
+      <FilterBar>
+        <FilterRow>
+          <div className="relative w-full sm:min-w-60 sm:flex-1 xl:max-w-sm">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              type="search"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              placeholder="Number, title, or client"
+              aria-label="Search projects by number, title, or client"
+              className="pl-9"
+            />
+          </div>
+          <Select value={params.stage ?? ALL} onValueChange={(value) => setFilter("stage", value)}>
+            <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-48" aria-label="Stage">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All stages</SelectItem>
+              {STAGES.map((stage) => (
+                <SelectItem key={stage.value} value={stage.value}>
+                  {stage.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select
-            value={params.client ?? ALL}
-            onValueChange={(value) => setFilter("client", value)}
+            value={params.status ?? ALL}
+            onValueChange={(value) => setFilter("status", value)}
           >
-            <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-48" aria-label="Client">
+            <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-36" aria-label="Status">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>All clients</SelectItem>
-              {clients.data?.results.map((client) => (
-                <SelectItem key={client.id} value={String(client.id)}>
-                  {client.company_name}
+              <SelectItem value={ALL}>All statuses</SelectItem>
+              {Object.entries(PROJECT_STATUS_LABELS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        )}
-        <Select
-          value={params.project_type ?? ALL}
-          onValueChange={(value) => setFilter("project_type", value)}
-        >
-          <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-40" aria-label="Project type">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>All types</SelectItem>
-            {Object.entries(PROJECT_TYPE_LABELS).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <FilterToggle
-          pressed={params.needs_action === "1"}
-          onPressedChange={(pressed) => setFilter("needs_action", pressed ? "1" : null)}
-        >
-          Needs action
-        </FilterToggle>
-        <FilterToggle
-          pressed={params.waiting_on === "client"}
-          onPressedChange={(pressed) => setFilter("waiting_on", pressed ? "client" : null)}
-        >
-          Waiting for client
-        </FilterToggle>
-        <FilterToggle
-          pressed={params.overdue === "1"}
-          onPressedChange={(pressed) => setFilter("overdue", pressed ? "1" : null)}
-        >
-          Overdue
-        </FilterToggle>
-        {dueWithin && (
-          <FilterToggle pressed onPressedChange={() => setFilter("due_within", null)}>
-            Due in the next {dueWithin} days
+          {can("view_clients") && (
+            <Select
+              value={params.client ?? ALL}
+              onValueChange={(value) => setFilter("client", value)}
+            >
+              <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-52" aria-label="Client">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>All clients</SelectItem>
+                {clients.data?.results.map((client) => (
+                  <SelectItem key={client.id} value={String(client.id)}>
+                    {client.company_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <Select
+            value={params.project_type ?? ALL}
+            onValueChange={(value) => setFilter("project_type", value)}
+          >
+            <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-40" aria-label="Project type">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All types</SelectItem>
+              {Object.entries(PROJECT_TYPE_LABELS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FilterRow>
+        <FilterRow>
+          <FilterToggle
+            pressed={params.needs_action === "1"}
+            onPressedChange={(pressed) => setFilter("needs_action", pressed ? "1" : null)}
+          >
+            Needs action
           </FilterToggle>
-        )}
-        <div className="w-full sm:ml-auto sm:w-auto">
-          <Select value={ordering} onValueChange={(value) => setFilter("ordering", value)}>
-            <SelectTrigger className="w-full sm:w-60" aria-label="Sort by">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SORT_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          <FilterToggle
+            pressed={params.waiting_on === "client"}
+            onPressedChange={(pressed) => setFilter("waiting_on", pressed ? "client" : null)}
+          >
+            Waiting for client
+          </FilterToggle>
+          <FilterToggle
+            pressed={params.overdue === "1"}
+            onPressedChange={(pressed) => setFilter("overdue", pressed ? "1" : null)}
+          >
+            Overdue
+          </FilterToggle>
+          {dueWithin && (
+            <FilterToggle pressed onPressedChange={() => setFilter("due_within", null)}>
+              Due in the next {dueWithin} days
+            </FilterToggle>
+          )}
+          {filtered && <ClearFilters onClear={clearFilters} />}
+          <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
+            <span className="hidden text-sm text-muted-foreground lg:inline" aria-hidden="true">
+              Sort by
+            </span>
+            <Select value={ordering} onValueChange={(value) => setFilter("ordering", value)}>
+              <SelectTrigger className="w-full sm:w-60" aria-label="Sort by">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </FilterRow>
       </FilterBar>
 
       {projects.isError ? (
@@ -372,8 +382,14 @@ export function ProjectsListPage() {
             sort={ordering}
             onSortChange={(sort) => setFilter("ordering", sort)}
             onRowClick={(project) => navigate(`/app/projects/${project.id}`)}
+            cardsBelow="xl"
             mobileCard={(project) => (
-              <ProjectCard project={project} to={`/app/projects/${project.id}`} variant="full" />
+              <ProjectCard
+                project={project}
+                to={`/app/projects/${project.id}`}
+                variant="full"
+                showManager
+              />
             )}
             empty={
               <Card>

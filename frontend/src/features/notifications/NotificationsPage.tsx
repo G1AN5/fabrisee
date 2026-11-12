@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
-import { FilterBar, FilterToggle } from "@/components/FilterBar";
+import { FilterBar, FilterRow, FilterToggle } from "@/components/FilterBar";
 import { PageHeader } from "@/components/PageHeader";
 import { Pagination } from "@/components/Pagination";
 import { ProjectNumber } from "@/components/ProjectNumber";
@@ -60,14 +60,16 @@ export function NotificationsPage() {
       />
 
       <FilterBar>
-        <FilterToggle
-          pressed={unreadOnly}
-          onPressedChange={(pressed) =>
-            setSearchParams(pressed ? { unread: "1" } : {}, { replace: true })
-          }
-        >
-          Unread only
-        </FilterToggle>
+        <FilterRow>
+          <FilterToggle
+            pressed={unreadOnly}
+            onPressedChange={(pressed) =>
+              setSearchParams(pressed ? { unread: "1" } : {}, { replace: true })
+            }
+          >
+            Unread only
+          </FilterToggle>
+        </FilterRow>
       </FilterBar>
 
       <Card className="overflow-hidden">
